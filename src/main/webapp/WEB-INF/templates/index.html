@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SSM-CRUD</title>
+    <link rel="stylesheet" th:href="@{/static/css/bootstrap.min.css}">
+    <script th:src="@{/static/js/jquery-3.3.1.min.js}"></script>
+    <script th:src="@{/static/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+<!--员工添加的模态框-->
+<div class="modal fade" id="empAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">员工添加</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="empName_add_input" class="col-sm-2 control-label">empName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="empName" class="form-control" id="empName_add_input" placeholder="empName">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_add_input" class="col-sm-2 control-label">email</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="email" class="form-control" id="email_add_input" placeholder="haha@qq.com">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">gender</label>
+                        <div class="col-sm-10">
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender1_add_input" value="M" checked="checked"> 男
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender2_add_input" value="W"> 女
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_add_input" class="col-sm-2 control-label">deptName</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="dId" id="dept_add_select">
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_save_btn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--员工修改的模态框-->
+<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">员工修改</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="empName_add_input" class="col-sm-2 control-label">empName</label>
+                        <div class="col-sm-10">
+                            <p class="form-control-static" id="emp_update_name"></p>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_add_input" class="col-sm-2 control-label">email</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="email" class="form-control" id="email_update_input" placeholder="haha@qq.com">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">gender</label>
+                        <div class="col-sm-10">
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender1_update_input" value="M" checked="checked"> 男
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender2_update_input" value="W"> 女
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_add_input" class="col-sm-2 control-label">deptName</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="dId" id="dept_update_select">
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_update_btn">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>SSM-CRUD</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-md-offset-10">
+            <button class="btn btn-primary btn-sm" id="emp_add_modal_btn">新增</button>
+            <button class="btn btn-danger btn-sm" id="emp_delete_modal_btn">删除</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="emps_table" class="table table-hover">
+                <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="check_all"/>
+                    </th>
+                    <th>#</th>
+                    <th>empName</th>
+                    <th>gender</th>
+                    <th>email</th>
+                    <th>deptName</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+
+            </table>
+        </div>
+        <div class="col-md-6" id="page_info_area">
+        </div>
+        <div class="col-md-6" id="page_nav_area">
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    let currentPage;
+    //首页
+    $(function () {
+        to_page(1);
+    });
+
+    //获取项目名称
+    function getContextPath(){
+        let pathName = document.location.pathname;
+        let index = pathName.substr(1).indexOf("/");
+        let result = pathName.substr(0,index+1);
+        return result;
+    }
+
+    //分页跳转
+    function to_page(pn) {
+        let contextPath =getContextPath();
+        $.ajax({
+            url:contextPath+"/page/"+pn,
+            type:"GET",
+            success:function (result) {
+                //console.log(result)
+                build_emps_table(result);
+                build_page_info(result);
+                build_page_nav(result);
+            }
+        })
+    }
+
+    //构建表格
+    function build_emps_table(result) {
+        $("#emps_table tbody").empty();
+        let emps = result.extend.pageInfo.list;
+        $.each(emps,function (index,item) {
+            let checkBoxId = $("<td><input type='checkbox' class='check_item' onclick='check_click(this)'/></td>")
+            let empId = $("<td></td>").append(item.empId);
+            let empName = $("<td></td>").append(item.empName);
+            let gender = $("<td></td>").append(item.gender=='M'?"男":"女");
+            let email = $("<td></td>").append(item.email);
+            let deptName = $("<td></td>").append(item.department.deptName);
+            let editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn").append("编辑").attr("onclick","edit_click(this)");
+            editBtn.attr("emp-id",item.empId);
+            let delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn").append("删除").attr("onclick","delete_click(this)");
+            delBtn.attr("emp-id",item.empId);
+            let btn = $("<td></td>").append(editBtn).append(" ").append(delBtn);
+            $("<tr></tr>").append(checkBoxId).append(empId).append(empName).append(gender).append(email).append(deptName).append(btn).appendTo("#emps_table tbody");
+        })
+    }
+
+    //构建分页信息
+    function build_page_info(result) {
+        $("#page_info_area").empty();
+        let emps = result.extend.pageInfo;
+        $("#page_info_area").append("当前 "+emps.pageNum+" 页，总共 "+emps.pages+" 页，总共 "+emps.total+" 条记录  ");
+        currentPage = emps.pageNum;
+    }
+
+    //构建分页导航
+    function build_page_nav(result) {
+        let emps = result.extend.pageInfo;
+        let ul = $("<ul></ul>").addClass("pagination");
+        let firstPageLi = $("<li></li>").append($("<a></a>").append("首页").attr("href","#"));
+        let prePageLi = $("<li></li>").append($("<a></a>").append("&laquo;").attr("href","#"));
+        if (emps.hasPreviousPage == false){
+            firstPageLi.addClass("disabled");
+            prePageLi.addClass("disabled");
+        } else {
+            firstPageLi.click(function () {
+                to_page(1);
+            });
+            prePageLi.click(function () {
+                to_page(emps.pageNum - 1);
+            });
+        }
+        ul.append(firstPageLi).append(prePageLi);
+
+        $.each(emps.navigatepageNums,function (index,item) {
+            $("#page_nav_area").empty();
+            let numLi = $("<li></li>").append($("<a></a>").append(item).attr("href","#"));
+            if (emps.pageNum == item){
+                numLi.addClass("active");
+            }
+            numLi.click(function () {
+                to_page(item);
+            });
+            ul.append(numLi);
+        });
+
+        let nextPageLi = $("<li></li>").append($("<a></a>").append("&raquo;").attr("href","#"));
+        let LastPageLi = $("<li></li>").append($("<a></a>").append("末页").attr("href","#"));
+        if (emps.hasNextPage == false){
+            nextPageLi.addClass("disabled");
+            LastPageLi.addClass("disabled");
+        } else {
+            nextPageLi.click(function () {
+                to_page(emps.pageNum + 1);
+            });
+            LastPageLi.click(function () {
+                to_page(emps.pages);
+            });
+        }
+        ul.append(nextPageLi).append(LastPageLi);
+
+        let nav = $("<nav></nav>").append(ul);
+        nav.appendTo("#page_nav_area");
+    }
+
+    //表单样式重置
+    function reset_from(ele){
+        $(ele)[0].reset();
+        $(ele).find("*").removeClass("has-error has-success");
+        $(ele).find(".help-block").text("");
+    }
+
+    //新增按钮点击事件 调出新增模态框
+    $("#emp_add_modal_btn").click(function () {
+        reset_from("#empAddModal form");
+        getDepts("#dept_add_select");
+        $('#empAddModal').modal({
+            backdrop:"static"
+        });
+    })
+
+    //获取部门信息构建下拉列表,传入需要被构建的下拉列表
+    function getDepts(ele) {
+        $(ele).empty();
+        let contextPath = getContextPath();
+        $.ajax({
+            url: contextPath+"/depts",
+            type: "GET",
+            success:function (result) {
+                $.each(result.extend.depts,function () {
+                    let option = $("<option></option>").append(this.deptName).attr("value",this.dId);
+                    option.appendTo(ele);
+                })
+                console.log(result);
+            }
+        })
+    }
+
+    //前端信息校验
+    function validate_add_from(){
+        let empName = $("#empName_add_input").val();
+        let regName = /(^[a-zA-Z]{1}[a-zA-Z\s]{0,20}[a-zA-Z]{1}$)|(^(?:[\u4e00-\u9fa5·]{2,16})$)/
+        if (!regName.test(empName)){
+            show_validate_msg("#empName_add_input","error","用户名格式不合法！");
+            return false;
+        } else {
+            show_validate_msg("#empName_add_input","success","");
+        }
+
+        let email = $("#email_add_input").val();
+        let regEmail = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+        if (!regEmail.test(email)){
+            show_validate_msg("#email_add_input","error","email格式不合法！");
+            return false;
+        } else {
+            show_validate_msg("#email_add_input","success","");
+        }
+        return true;
+    }
+
+    //校验信息显示
+    function show_validate_msg(ele,status,msg){
+        $(ele).parent().removeClass("has-success has-error");
+        $(ele).next("span").text("");
+        if ("success"==status){
+            $(ele).parent().addClass("has-success");
+            $(ele).next("span").text(msg);
+        } else if ("error"==status) {
+            $(ele).parent().addClass("has-error");
+            $(ele).next("span").text(msg);
+        }
+    }
+
+    //用户名重复检查
+    $("#empName_add_input").change(function () {
+        let path = getContextPath();
+        let empName = this.value;
+        $.ajax({
+            url:path+"/checkEmp",
+            data: `empName=${empName}`,
+            type:"POST",
+            success:function (result) {
+                if (result.code==100){
+                    show_validate_msg("#empName_add_input","success","用户名可用");
+                    $("#emp_save_btn").attr("ajax-va","success");
+                } else{
+                    show_validate_msg("#empName_add_input","error",result.extend.va_msg);
+                    $("#emp_save_btn").attr("ajax-va","error");
+                }
+            }
+        })
+    })
+
+    //保存员工
+    $("#emp_save_btn").click(function () {
+        if (!validate_add_from()){
+            return false;
+        }
+
+        if ($(this).attr("ajax-va")=="error"){
+            return false;
+        }
+
+        let contextPath = getContextPath();
+        $.ajax({
+            url:contextPath + "/emp",
+            type:"POST",
+            data:$("#empAddModal form").serialize(),
+            success:function (result) {
+                if (result.code == 100){
+                    $("#empAddModal").modal('hide');
+                    to_page(99999);
+                } else{
+                    if (undefined !=result.extend.errorFields.email){
+                        show_validate_msg("#email_add_input","error",result.extend.errorFields.email);
+                    }
+                    if (undefined !=result.extend.errorFields.empName){
+                        show_validate_msg("#empName_add_input","error",result.extend.errorFields.empName);
+                    }
+                }
+            }
+        })
+    })
+
+    //编辑按钮点击事件 调出编辑模态框
+    function edit_click(obj) {
+        getEmp($(obj).attr("emp-id"));
+        getDepts("#dept_update_select");
+        $("#emp_update_btn").attr("emp-id",$(obj).attr("emp-id"));
+        $("#empUpdateModal").modal({
+            backdrop:"static"
+        });
+    };
+
+    //查询单个员工信息回显
+    function getEmp(id) {
+        let path = getContextPath();
+        $.ajax({
+            url:path+"/emp/"+id,
+            type:"GET",
+            success:function (result) {
+                $("#emp_update_name").text(result.extend.emp.empName);
+                $("#email_update_input").val(result.extend.emp.email);
+                $("#empUpdateModal input[name=gender]").val([result.extend.emp.gender]);
+                $("#empUpdateModal select").val([result.extend.emp.dId]);
+            }
+        })
+    };
+
+    //点击更新
+    $("#emp_update_btn").click(function () {
+        let path = getContextPath();
+        let email = $("#email_update_input").val();
+        let regEmail = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+        if (!regEmail.test(email)){
+            show_validate_msg("#email_update_input","error","email格式不合法！");
+        } else {
+            show_validate_msg("#email_update_input","success","");
+        }
+        $.ajax({
+            url:path+"/emp/"+$(this).attr("emp-id"),
+            type:"PUT",
+            data:$("#empUpdateModal form").serialize(),
+            success:function (result) {
+                $("#empUpdateModal").modal("hide");
+                to_page(currentPage);
+            }
+        })
+    });
+
+    //单个删除
+    function delete_click(obj) {
+        let path = getContextPath();
+        let empName = $(obj).parents("tr").find("td:eq(2)").text();
+        if (confirm("确认删除【"+empName+"】吗？")){
+            $.ajax({
+                url:path+"/emp/"+$(obj).attr("emp-id"),
+                type:"DELETE",
+                success:function (result) {
+                    alert(result.msg);
+                    to_page(currentPage);
+                }
+            })
+        }
+    };
+
+    //全选全不选
+    $("#check_all").click(function () {
+        $(".check_item").prop("checked",$(this).prop("checked"));
+    });
+
+    function check_click(obj) {
+        let flag = $(".check_item:checked").length==$(".check_item").length;
+        $("#check_all").prop("checked",flag)
+    };
+
+    //点击批量删除
+    $("#emp_delete_modal_btn").click(function () {
+        let path = getContextPath();
+        let empNames = "";
+        let del_idstr = "";
+        $.each($(".check_item:checked"),function () {
+            empNames += $(this).parents("tr").find("td:eq(2)").text()+",";
+            del_idstr += $(this).parents("tr").find("td:eq(1)").text()+"-";
+        })
+        empNames = empNames.substring(0,empNames.length-1);
+        del_idstr = del_idstr.substring(0,del_idstr.length-1);
+        if ($(".check_item:checked").length==0){
+            return false;
+        };
+        if (confirm("确定要删除【"+empNames+"】吗？")){
+            $.ajax({
+                url:path+"/emp/"+del_idstr,
+                type:"DELETE",
+                success:function (result) {
+                    to_page(currentPage);
+                    $("#check_all").prop("checked",false);
+                    alert(result.msg);
+                }
+            })
+        };
+    })
+
+</script>
+</html>
